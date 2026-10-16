@@ -19,7 +19,6 @@ var (
 		"1": "iOS",     // Possibly means 'App Store'
 		// maybe more?
 	}
-	versions []string
 )
 
 // Answer to a CS_10800 packet with a SC_10801 packet + hashes
@@ -39,7 +38,7 @@ func buildUpdateCheckResponse(buffer *[]byte, client *connection.Client, hashesF
 		return 0, packetId, err
 	}
 
-	updateVersions(hashesFn)
+	versions := updateVersions(hashesFn)
 	belfastRegion := region.Current()
 
 	// It seems like the game kind of ignore anything but the versions, timestamp & Monday_0OclockTimestamp
@@ -73,11 +72,12 @@ func buildUpdateCheckResponse(buffer *[]byte, client *connection.Client, hashesF
 	return client.SendMessage(packetId, &response)
 }
 
+// updateVersions builds the version list sent to clients from the current
+// hashes. It is rebuilt on every call so refreshed hashes reach clients without
+// a restart.
 func updateVersions(hashesFn func() misc.HashMap) []string {
-	if len(versions) != 0 {
-		return versions
-	}
 	hashes := hashesFn()
+	versions := make([]string, 0, len(hashes)+1)
 	for _, hash := range hashes {
 		versions = append(versions, hash.Hash)
 	}

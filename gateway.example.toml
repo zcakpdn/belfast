@@ -10,6 +10,17 @@ port = 80
 # proxy_dial_timeout_ms = 5000
 # require_private_clients = true
 
+[updates]
+# Follow the official game's updates while running: every interval, re-read the
+# client version and resource hashes from the official gateway of the EN region
+# and versions.json from the data source.
+# enabled = true
+# Minutes between checks; 0 checks once at startup only.
+# interval_minutes = 60
+# Where game data and versions.json are downloaded from (raw GitHub URL of a
+# belfast-data style repository, "https://raw.githubusercontent.com/<owner>/<repo>/<branch>").
+# data_base_url = "https://raw.githubusercontent.com/ggmolly/belfast-data/main"
+
 [[servers]]
 # Server list entries (used by gateway).
 id = 1

@@ -13,7 +13,13 @@ var (
 	localVersionsErr  error
 )
 
+// ResolveRegionVersion returns the client version reported to clients: the
+// version the official gateway advertises when it was reachable, otherwise the
+// version of the game data source.
 func ResolveRegionVersion(region string) (string, error) {
+	if live := LiveClientVersion(region); live != "" {
+		return live, nil
+	}
 	versions := GetLatestVersions()
 	if versions != nil {
 		if entry, ok := versions[region]; ok {

@@ -9,6 +9,7 @@ import (
 	"github.com/ggmolly/belfast/internal/config"
 	"github.com/ggmolly/belfast/internal/connection"
 	"github.com/ggmolly/belfast/internal/consts"
+	"github.com/ggmolly/belfast/internal/misc"
 	"github.com/ggmolly/belfast/internal/packets"
 	"github.com/ggmolly/belfast/internal/protobuf"
 	"github.com/ggmolly/belfast/internal/region"
@@ -52,7 +53,8 @@ func decodeGatewayPackResponse(t *testing.T, client *connection.Client) *protobu
 func TestGatewayPackInfoResponse(t *testing.T) {
 	serverStatusCacheEntries = nil
 	serverStatusCacheRefreshedAt = time.Time{}
-	versions = []string{"hash$cat$abc", "dTag-1"}
+	misc.SetGameHashesForTest(misc.HashMap{{Category: "cat", Hash: "hash$cat$abc"}})
+	versions := []string{"hash$cat$abc", "dTag-1"}
 
 	path := writeGatewayConfig(t, "bind_address = \"0.0.0.0\"\nport = 80\n\n[[servers]]\nid = 1\nname = \"Belfast\"\nip = \"127.0.0.1\"\nport = 7000\napi_port = 0\nassert_online = true\nproxy_ip = \"127.0.0.2\"\nproxy_port = 7001\n\n[[servers]]\nid = 2\nip = \"10.0.0.1\"\nport = 7002\napi_port = 0\nassert_online = true\n")
 	if _, err := config.LoadGateway(path); err != nil {
@@ -120,7 +122,7 @@ func TestGatewayPackInfoResponse(t *testing.T) {
 func TestGatewayPackInfoUnknownPlatform(t *testing.T) {
 	serverStatusCacheEntries = nil
 	serverStatusCacheRefreshedAt = time.Time{}
-	versions = []string{"hash$cat$abc", "dTag-1"}
+	misc.SetGameHashesForTest(misc.HashMap{{Category: "cat", Hash: "hash$cat$abc"}})
 
 	path := writeGatewayConfig(t, "bind_address = \"0.0.0.0\"\nport = 80\n\n[[servers]]\nid = 1\nip = \"127.0.0.1\"\nport = 7000\napi_port = 0\nassert_online = true\n")
 	if _, err := config.LoadGateway(path); err != nil {

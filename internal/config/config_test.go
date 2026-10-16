@@ -892,3 +892,24 @@ func TestToSnakeCase(t *testing.T) {
 		})
 	}
 }
+
+func TestLoadGatewayUpdatesIntervalDefaults(t *testing.T) {
+	cases := map[string]int{
+		"":                                   60,
+		"[updates]\ninterval_minutes = 0\n":  0,
+		"[updates]\ninterval_minutes = 15\n": 15,
+	}
+	for body, want := range cases {
+		path := filepath.Join(t.TempDir(), "gateway.toml")
+		if err := os.WriteFile(path, []byte("port = 80\n"+body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		cfg, err := LoadGateway(path)
+		if err != nil {
+			t.Fatalf("load: %v", err)
+		}
+		if got := *cfg.Updates.IntervalMinutes; got != want {
+			t.Errorf("config %q: interval_minutes = %d, want %d", body, got, want)
+		}
+	}
+}

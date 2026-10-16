@@ -34,9 +34,9 @@ var dataFnSQLC = map[string]func(context.Context, string, *gen.Queries) error{
 	"JuustagramShipGroups":   importJuustagramShipGroupsSQLC,
 }
 
-func updateAllDataSQLC(region string) {
+func updateAllDataSQLC(region string) error {
 	ctx := context.Background()
-	err := db.DefaultStore.WithTx(ctx, func(q *gen.Queries) error {
+	return db.DefaultStore.WithTx(ctx, func(q *gen.Queries) error {
 		for _, key := range order {
 			fn := dataFnSQLC[key]
 			if fn == nil {
@@ -49,9 +49,6 @@ func updateAllDataSQLC(region string) {
 		}
 		return nil
 	})
-	if err != nil {
-		logger.LogEvent("GameData", "Updating", fmt.Sprintf("failed to update game data: %s", err.Error()), logger.LOG_LEVEL_ERROR)
-	}
 }
 
 func importItemsSQLC(ctx context.Context, region string, q *gen.Queries) error {
