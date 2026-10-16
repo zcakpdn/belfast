@@ -30,8 +30,12 @@ func startUpdateWatcher(updates config.UpdatesConfig, importData func(string) er
 	if updates.ReimportData != nil && !*updates.ReimportData {
 		importData = nil
 	}
-	interval := time.Duration(updates.IntervalMinutes) * time.Minute
-	logger.LogEvent("GameUpdate", "Watcher", fmt.Sprintf("following %s updates every %s (data: %s)", region.Current(), interval, misc.DataBaseURL()), logger.LOG_LEVEL_INFO)
+	interval := time.Duration(*updates.IntervalMinutes) * time.Minute
+	if interval == 0 {
+		logger.LogEvent("GameUpdate", "Watcher", fmt.Sprintf("checking %s updates once at startup (data: %s)", region.Current(), misc.DataBaseURL()), logger.LOG_LEVEL_INFO)
+	} else {
+		logger.LogEvent("GameUpdate", "Watcher", fmt.Sprintf("following %s updates every %s (data: %s)", region.Current(), interval, misc.DataBaseURL()), logger.LOG_LEVEL_INFO)
+	}
 	misc.StartUpdateWatcher(context.Background(), misc.UpdateWatcherOptions{
 		Region:   region.Current(),
 		Interval: interval,

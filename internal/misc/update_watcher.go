@@ -19,7 +19,8 @@ var importedDataMu sync.Mutex
 
 // UpdateWatcherOptions configures StartUpdateWatcher.
 type UpdateWatcherOptions struct {
-	Region   string
+	Region string
+	// Interval between polls. Zero polls once and stops.
 	Interval time.Duration
 	// Import re-imports game data for a region. Nil disables re-imports, which
 	// is what the gateway wants since it has no game database.
@@ -27,17 +28,17 @@ type UpdateWatcherOptions struct {
 }
 
 // StartUpdateWatcher follows the official game's updates until ctx is done.
-// Every interval it:
+// At startup, then every interval, it:
 //   - re-reads versions.json from the data source,
 //   - asks the official gateway for the client version it expects and for its
 //     resource hashes, so clients updated through the store keep matching,
 //   - re-imports game data when the data source moved past what was imported.
 func StartUpdateWatcher(ctx context.Context, opts UpdateWatcherOptions) {
-	if opts.Interval <= 0 {
-		opts.Interval = time.Hour
-	}
 	go func() {
 		pollGameUpdates(opts)
+		if opts.Interval <= 0 {
+			return
+		}
 		ticker := time.NewTicker(opts.Interval)
 		defer ticker.Stop()
 		for {

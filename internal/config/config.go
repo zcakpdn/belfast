@@ -108,8 +108,8 @@ type RegionConfig struct {
 type UpdatesConfig struct {
 	// Enabled polls the official gateway and the data source in the background.
 	Enabled *bool `toml:"enabled"`
-	// IntervalMinutes is the delay between polls.
-	IntervalMinutes int `toml:"interval_minutes"`
+	// IntervalMinutes is the delay between polls. 0 checks once at startup only.
+	IntervalMinutes *int `toml:"interval_minutes"`
 	// DataBaseURL is where game data and versions.json are downloaded from.
 	DataBaseURL string `toml:"data_base_url"`
 	// ReimportData re-imports game data when the data source version changes.
@@ -173,8 +173,9 @@ func applyUpdatesDefaults(updates *UpdatesConfig) {
 		enabled := true
 		updates.Enabled = &enabled
 	}
-	if updates.IntervalMinutes <= 0 {
-		updates.IntervalMinutes = 60
+	if updates.IntervalMinutes == nil || *updates.IntervalMinutes < 0 {
+		interval := 60
+		updates.IntervalMinutes = &interval
 	}
 	if updates.ReimportData == nil {
 		reimport := true
