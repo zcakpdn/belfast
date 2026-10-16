@@ -19,7 +19,7 @@ func GatewayPackInfo(buffer *[]byte, client *connection.Client) (int, int, error
 	if err := proto.Unmarshal(*buffer, &payload); err != nil {
 		return 0, packetId, err
 	}
-	updateVersions(misc.GetGameHashes)
+	versions := updateVersions(misc.GetGameHashes)
 	belfastRegion := region.Current()
 	resolvedPlatform, ok := platformMap[payload.GetPlatform()]
 	if !ok {

@@ -36,6 +36,12 @@ func RunGateway() {
 		logger.LogEvent("Config", "Load", err.Error(), logger.LOG_LEVEL_ERROR)
 		os.Exit(1)
 	}
+	if loadedConfig.Mode == "serve" {
+		// The gateway answers update checks itself, so it follows game updates
+		// too. It has no game database, so it never re-imports data.
+		configureGameDataSource(loadedConfig.Updates)
+		startUpdateWatcher(loadedConfig.Updates, nil)
+	}
 	if loadedConfig.Mode == "proxy" {
 		runtime := newGatewayProxyRuntime(loadedConfig)
 		go watchGatewayConfig(*configPath, loadedConfig, func(updated config.GatewayConfig) {

@@ -17,6 +17,7 @@ type Config struct {
 	DB           DatabaseConfig     `toml:"database"`
 	Region       RegionConfig       `toml:"region"`
 	CreatePlayer CreatePlayerConfig `toml:"create_player"`
+	Updates      UpdatesConfig      `toml:"updates"`
 	Servers      []ServerConfig     `toml:"servers"`
 	Path         string             `toml:"-"`
 }
@@ -30,6 +31,7 @@ type GatewayConfig struct {
 	ProxyDialTimeoutMS int `toml:"proxy_dial_timeout_ms"`
 	// When nil, defaults to true.
 	RequirePrivateClients *bool          `toml:"require_private_clients"`
+	Updates               UpdatesConfig  `toml:"updates"`
 	Servers               []ServerConfig `toml:"servers"`
 	Path                  string         `toml:"-"`
 }
@@ -102,6 +104,18 @@ type RegionConfig struct {
 	Default string `toml:"default"`
 }
 
+// UpdatesConfig controls following the official game's updates at runtime.
+type UpdatesConfig struct {
+	// Enabled polls the official gateway and the data source in the background.
+	Enabled *bool `toml:"enabled"`
+	// IntervalMinutes is the delay between polls.
+	IntervalMinutes int `toml:"interval_minutes"`
+	// DataBaseURL is where game data and versions.json are downloaded from.
+	DataBaseURL string `toml:"data_base_url"`
+	// ReimportData re-imports game data when the data source version changes.
+	ReimportData *bool `toml:"reimport_data"`
+}
+
 type CreatePlayerConfig struct {
 	SkipOnboarding     bool     `toml:"skip_onboarding"`
 	NameBlacklist      []string `toml:"name_blacklist"`
@@ -136,6 +150,7 @@ func Load(path string) (Config, error) {
 		defaultRequirePrivate := true
 		cfg.Belfast.RequirePrivateClients = &defaultRequirePrivate
 	}
+	applyUpdatesDefaults(&cfg.Updates)
 	schemaName := resolveSchemaName(cfg)
 	if schemaName != "" && cfg.DB.SchemaName == "" {
 		cfg.DB.SchemaName = schemaName
@@ -151,6 +166,20 @@ func Load(path string) (Config, error) {
 	cfg.Path = path
 	current = cfg
 	return cfg, nil
+}
+
+func applyUpdatesDefaults(updates *UpdatesConfig) {
+	if updates.Enabled == nil {
+		enabled := true
+		updates.Enabled = &enabled
+	}
+	if updates.IntervalMinutes <= 0 {
+		updates.IntervalMinutes = 60
+	}
+	if updates.ReimportData == nil {
+		reimport := true
+		updates.ReimportData = &reimport
+	}
 }
 
 func normalizeDBDriver(driver string) string {
@@ -187,12 +216,14 @@ func LoadGateway(path string) (GatewayConfig, error) {
 		defaultRequirePrivate := true
 		cfg.RequirePrivateClients = &defaultRequirePrivate
 	}
+	applyUpdatesDefaults(&cfg.Updates)
 	cfg.Path = path
 	current = Config{
 		Belfast: BelfastConfig{
 			BindAddress: cfg.BindAddress,
 			Port:        cfg.Port,
 		},
+		Updates: cfg.Updates,
 		Servers: cfg.Servers,
 		Path:    cfg.Path,
 	}

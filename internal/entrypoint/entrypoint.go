@@ -90,6 +90,7 @@ func Run(opts Options) {
 		logger.LogEvent("DB", "Seed", err.Error(), logger.LOG_LEVEL_ERROR)
 		os.Exit(1)
 	}
+	configureGameDataSource(loadedConfig.Updates)
 	hasData, err := db.HasGameData(context.Background(), store)
 	if err != nil {
 		logger.LogEvent("DB", "Probe", err.Error(), logger.LOG_LEVEL_ERROR)
@@ -102,6 +103,7 @@ func Run(opts Options) {
 		logger.LogEvent("Reseed", "Forced", "Forcing reseed of the database...", logger.LOG_LEVEL_INFO)
 		misc.UpdateAllData(region.Current())
 	}
+	startUpdateWatcher(loadedConfig.Updates, misc.ImportGameData)
 	server := connection.NewServer(loadedConfig.Belfast.BindAddress, loadedConfig.Belfast.Port, packets.Dispatch)
 	server.SetMaintenance(loadedConfig.Belfast.Maintenance)
 	if loadedConfig.Belfast.RequirePrivateClients != nil {

@@ -58,6 +58,18 @@ path = "data/belfast.db"
 # Valid values: CN, EN, JP, KR, TW
 default = "EN"
 
+[updates]
+# Follow the official game's updates while running: every interval, re-read the
+# client version and resource hashes from the official gateway of [region].default
+# and versions.json from the data source.
+# enabled = true
+# interval_minutes = 60
+# Where game data and versions.json are downloaded from (raw GitHub URL of a
+# belfast-data style repository, "https://raw.githubusercontent.com/<owner>/<repo>/<branch>").
+# data_base_url = "https://raw.githubusercontent.com/ggmolly/belfast-data/main"
+# Re-import game data when the data source publishes a new version.
+# reimport_data = true
+
 [create_player]
 # when true, create a commander for unknown arg2 during auth.
 skip_onboarding = false
